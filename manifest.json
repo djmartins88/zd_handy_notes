@@ -1,0 +1,24 @@
+{
+  "name": "Handy notes",
+  "author": {
+    "name": "David",
+    "email": "davidjfmartins@gmail.com",
+    "url": ""
+  },
+  "defaultLocale": "en",
+  "private": true,
+  "location": {
+    "support": {
+      "ticket_sidebar": {
+        "url": "assets/ticket.html",
+        "flexible": true
+      },
+      "organization_sidebar": {
+        "url": "assets/organization.html",
+        "flexible": true
+      }
+    }
+  },
+  "version": "1.0",
+  "frameworkVersion": "2.0"
+}
