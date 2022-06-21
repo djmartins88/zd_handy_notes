@@ -2,8 +2,40 @@
 // https://developer.zendesk.com/apps/docs/developer-guide/getting_started
 var client = ZAFClient.init();
 var numNewElements = 0;
+var orgId;
 
-client.invoke('resize', {width: '100%'});
+client.get('organization').then(function(data) {
+
+    orgId = data['organization.externalId'];
+    if (orgId != undefined) {
+
+        // TODO pre-fil editing screen
+
+        request(orgId).then(
+            function(orgnotes) {
+                var handynotes ='';
+                
+                json = JSON.stringify(orgnotes, null, 2);
+                console.log(json);
+        
+                for (var e of orgnotes) {
+                    //console.log(e);
+                    handynotes += '<div class="' + e["class"] + '">' + e["value"] + '</div>';
+                }
+
+                setElementInnerHTML('handy-notes',handynotes);
+            },
+            function(response) {
+                console.error(response.responseText);
+            }
+        );
+    } else {
+        orgId = 'newidmock';
+    }
+
+}).catch(function(error) {
+    console.error(error.toString())
+})
 
 function addNewElement() {
     var select = document.getElementById('element-select')
@@ -66,8 +98,26 @@ function saveHandyNotes() {
         orgnotes.push(element);
     }
 
-    json = JSON.stringify(orgnotes, null, 2);
+    var org = {"id": orgId, "notes": orgnotes};
+
+    json = JSON.stringify(org);
     console.log(json);
+
+    var options = {
+        url:'https://ciie7i6u2g.execute-api.us-east-1.amazonaws.com/organization/' + orgId,
+        type:'PUT',
+        contentType: 'application/json',
+        data: json,
+        //cors: true,
+        //crossDomain: true
+    };
+    console.log(options)
+    
+    client.request(options).then(function(data) {
+        console.log(data);
+    }).catch(function(error) {
+        console.error(erro);
+    })
 }
 
 // function to resize widget size
