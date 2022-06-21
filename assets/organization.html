@@ -5,10 +5,16 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="content">
-    <div class="org-name">name</div>
-    <div class="org-tags">tags</div>
-    <div class="handy-notes">notes</div>
+  <div id="content" class="content">
+    <div id="handy-notes" class="handy-notes"></div>
+    <select id="element-select" onchange="addNewElement()">
+      <option disabled selected value> -- Add new element -- </option>
+      <option value="title">Title</option>
+      <option value="text">Text</option>
+      <option value="label">Label</option>
+      <option value="url">URL</option>
+    </select>
+    <button id="savebtn" onclick="saveHandyNotes()">Save</button>
   </div>
   <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
   <script src="org_hn.js"></script>

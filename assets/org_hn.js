@@ -1,77 +1,84 @@
 // Initialise Apps framework client. See also:
 // https://developer.zendesk.com/apps/docs/developer-guide/getting_started
-var client = ZAFClient.init()
+var client = ZAFClient.init();
+var numNewElements = 0;
 
-client.invoke('resize', {width: '100%'})
+client.invoke('resize', {width: '100%'});
 
-client.get('ticket.organization.name').then(function(data) {
-    setElementInnerHTML('org-name', data['ticket.organization.name'])
-}).catch(function(error) {
-    setElementInnerHTML('org-name', 'Looks like client doesn\'t belong to any organization!')
-    console.error(error.toString())
-})
+function addNewElement() {
+    var select = document.getElementById('element-select')
+    var selectedValue = select.value
+    select.selectedIndex = 0;
+    
+    //console.log(selectedValue);
 
-client.get('ticket.organization.tags').then(function(data) {
-
-    var tags = data['ticket.organization.tags']
-    if (tags.length === 0) {
-        throw 'no organization tags'
-    } else {
-        var tagsHtml = '<ul class="tags">'
-
-        tags.forEach(function(tag){
-            switch (tag){
-                default:
-                    tagsHtml += '<li>' + tag + '</li>'
-
-            }
-        })
-
-        tagsHtml += '</ul>'
-
-        setElementInnerHTML('org-tags', tagsHtml)
+    var newElement = '<div id="' + numNewElements + '" class="' + selectedValue + '">';
+    switch (selectedValue) {
+        case "title":
+            newElement += '<input type="text" value="Your title!"/>';
+            break;
+        case "text":
+            newElement += '<input type="text" value="Your text!" />';
+            break;
+        case "label":
+            newElement += '<input type="text" value="Your label!" />';
+            break;
+        case "url":
+            newElement += '<input type="text" value="The url name" /><input type="text" value="The url!"/>';
+            break;
     }
-}).catch(function(error) {
-    setElementInnerHTML('org-tags', 'There are no tags!')
-    console.error(error.toString())
-})
+    newElement += '<button onclick="remove(' + numNewElements++ + ')">Remove</button></div>'
+
+    addElementInnerHTML('handy-notes', newElement);
+
+}
+
+function remove(id) {
+    console.log('removing ' + id);
+    document.getElementById(id).remove();
+    resizeWidgetSize();
+}
+
+function saveHandyNotes() {
+
+    console.log('saving.. :)');
+
+    var handyNotes = document.getElementById('handy-notes');
+    var elements = handyNotes.getElementsByTagName('div');
+
+    var orgnotes = []
+    for (var e of elements) {
+        
+        var texts = e.getElementsByTagName('input');
+
+        var value = '';
+        if (e.className == 'url') {
+            value = {text: texts[0].value, link: texts[1].value};
+        } else {
+            value = texts[0].value;
+        }
+
+        var element = {
+            "class": e.className,
+            "value": value
+        };
+
+        orgnotes.push(element);
+    }
+
+    json = JSON.stringify(orgnotes, null, 2);
+    console.log(json);
+}
 
 // function to resize widget size
 function resizeWidgetSize() {
-    var content = document.getElementsByClassName('content')[0]
-    client.invoke('resize', { width: '100%', height: content.offsetHeight})
+    var content = document.getElementById('content');
+    client.invoke('resize', { width: '100%', height: content.offsetHeight});
 }
 
 // set element inner html
-function setElementInnerHTML(name, value) {
-    // i hereby declare it is forbidden to have multiple elements with the same class name (- always using index 0 as the element where we're setting the name)
-    document.getElementsByClassName(name)[0].innerHTML = value
+function addElementInnerHTML(id, newElement) {
+    var element = document.getElementById(id);
+    element.innerHTML = element.innerHTML + newElement;
+    resizeWidgetSize();
 }
-
-// request // https://handynotes.free.beeceptor.com
-function request(searchQuery) {
-    var options = {
-        url:'https://handynotes.free.beeceptor.com' + searchQuery,
-        type:'GET',
-        dataType: 'json'
-    };
-    //console.log(options)
-    return client.request(options)
-}
-
-request('/test').then(
-    function(elements) {
-        var handynotes ='';
-        console.log(elements);
-
-            for (e in elements) {
-                //console.log(e);
-                handynotes += '<div>' + e + ' - ' + elements[e] + '</div>';
-            }
-
-        setElementInnerHTML('handy-notes',handynotes);
-    },
-    function(response) {
-        console.error(response.responseText);
-    }
-);

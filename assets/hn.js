@@ -2,37 +2,10 @@
 // https://developer.zendesk.com/apps/docs/developer-guide/getting_started
 var client = ZAFClient.init()
 
-client.invoke('resize', {width: '100%'})
-
 client.get('ticket.organization.name').then(function(data) {
     setElementInnerHTML('org-name', data['ticket.organization.name'])
 }).catch(function(error) {
     setElementInnerHTML('org-name', 'Looks like client doesn\'t belong to any organization!')
-    console.error(error.toString())
-})
-
-client.get('ticket.organization.tags').then(function(data) {
-
-    var tags = data['ticket.organization.tags']
-    if (tags.length === 0) {
-        throw 'no organization tags'
-    } else {
-        var tagsHtml = '<ul class="tags">'
-
-        tags.forEach(function(tag){
-            switch (tag){
-                default:
-                    tagsHtml += '<li>' + tag + '</li>'
-
-            }
-        })
-
-        tagsHtml += '</ul>'
-
-        setElementInnerHTML('org-tags', tagsHtml)
-    }
-}).catch(function(error) {
-    setElementInnerHTML('org-tags', 'There are no tags!')
     console.error(error.toString())
 })
 
@@ -64,9 +37,9 @@ request('/test').then(
         var handynotes ='';
         console.log(elements);
 
-            for (e in elements) {
+            for (var e of elements) {
                 //console.log(e);
-                handynotes += '<div>' + e + ' - ' + elements[e] + '</div>';
+                handynotes += '<div class="' + e["class"] + '">' + e["value"] + '</div>';
             }
 
         setElementInnerHTML('handy-notes',handynotes);
